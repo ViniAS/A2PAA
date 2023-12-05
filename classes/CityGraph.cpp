@@ -17,10 +17,6 @@ CityGraph::CityGraph(const int numVertices) : numVertices(numVertices), numEdges
 
 CityGraph::~CityGraph() = default;
 
-void CityGraph::addNode() {
-    numVertices++;
-    adjLists.resize(numVertices);
-}
 
 bool CityGraph::addEdge(const int v1, const int v2, const float distance) {
     if (v1 >= numVertices || v2 >= numVertices) return false;
@@ -36,10 +32,11 @@ bool CityGraph::addEdge(const int v1, const int v2, const float distance) {
 
 bool CityGraph::removeEdge(const int v1, const int v2) {
     if (v1 >= numVertices || v2 >= numVertices) return false;
+
     for (auto &[distance, node]: adjLists[v1]) {
         if (node == v2) {
-            adjLists[v1].remove({node, distance});
-            adjLists[v2].remove({v1, distance});
+            adjLists[v1].remove({distance, node});
+            adjLists[v2].remove({distance, node});
             numEdges--;
             return true;
         }
@@ -102,4 +99,48 @@ void CityGraph::Dijkstra(int s, float *dist, int *parents) const {
         checked[v] = true;
     }
     delete[] checked;
+}
+
+Deliveryman * CityGraph::getNearestDeliverymans(const Order & order, const int n) const {
+    auto *nearest = new Deliveryman[n];
+    float *dist = new float[numVertices];
+    int *parents = new int[numVertices];
+    Dijkstra(order.node1, dist, parents);
+
+    priority_queue<pair<float, Deliveryman>,
+        std::vector<pair<float,Deliveryman>>, std::greater<>> heap;
+    for (Deliveryman driver: deliverymans) {
+        heap.emplace(dist[order.store], driver);
+    }
+
+    for (int i = 0; i < n; ++i) {
+        nearest[i] = heap.top().second;
+        heap.pop();
+    }
+
+    delete[] dist;
+    delete[] parents;
+    return nearest;
+}
+
+vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order const & order) const{
+    float *dist = new float[numVertices];
+    int *parents = new int[numVertices];
+    Dijkstra(order.store, dist, parents);
+
+    vector<int> path;
+    path.push_back(deliveryman.node);
+    while (parents[path.back()] != order.store)
+        path.push_back(parents[path.back()]);
+    vector<int> path2;
+
+    int node = dist[order.node1] + order.distance1 < dist[order.node2] + order.distance2 ? order.node1 : order.node2;
+    path2.push_back(node);
+    while (parents[path2.back()] != order.store)
+        path2.push_back(parents[path2.back()]);
+
+    for(int i=path2.size()-1; i>=0; i--)
+        path.push_back(path2[i]);
+
+    return path;
 }

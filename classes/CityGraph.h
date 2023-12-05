@@ -5,31 +5,69 @@
 #ifndef CITYGRAPH_H
 #define CITYGRAPH_H
 #include <list>
+#include <utility>
 #include <vector>
+#include <string>
 using namespace std;
 
 struct Edge {
     float distance;
     int node;
-    Edge(const int node, const float distance) : node(node), distance(distance) {}
+
+    Edge(const float distance, const int node) : distance(distance), node(node) {}
     bool operator==(const Edge& other) const {
         return node == other.node && distance == other.distance;
     }
 };
 
+struct Order {
+    int node1;
+    int node2;
+    //enderecos de entrega ficam em arestas.
+    float distance1;
+    float distance2;
+    string product;
+    int store; //vértice da loja
+    Order(const int node1, const int node2, const float distance1, const float distance2, string & product, const int store) :
+    node1(node1), node2(node2), distance1(distance1), distance2(distance2), product(std::move(product)), store(store) {}
+};
+
+struct DistributionCenter {
+    int node;
+    vector<tuple<string,int,float>> produtos; //product, quantity, weight
+    vector<int> cpt; //Cheapest path tree
+    vector<int> dist;
+    DistributionCenter(const int node, vector<tuple<string,int,float>> & produtos) : node(node), produtos(std::move(produtos)) {}
+};
+
+struct Deliveryman {
+    int node;
+    float capacity;
+    Deliveryman(const int node, const float capacity) : node(node), capacity(capacity) {}
+    Deliveryman(){}
+    bool operator>(const Deliveryman& other) const {
+        return capacity > other.capacity;
+    }
+
+    bool operator<(const Deliveryman& other) const {
+        return capacity < other.capacity;
+    }
+
+};
 class CityGraph {
 private:
     int numVertices;
     int numEdges;
-
     vector<list<Edge>> adjLists;
 
 public:
+    vector<Deliveryman> deliverymans;
+    vector<DistributionCenter> distributionCenters;
+
     explicit CityGraph(int numVertices);
 
     ~CityGraph();
 
-    void addNode();
 
     bool addEdge(int v1, int v2, float distance);
 
@@ -46,6 +84,10 @@ public:
     [[nodiscard]] vector<list<Edge>> getAdjLists() const;
 
     void Dijkstra(int s, float *dist, int *parents) const;
+
+    [[nodiscard]] Deliveryman * getNearestDeliverymans(Order & order, int n) const;
+
+    [[nodiscard]] vector<int> getDeliveryPath(Deliveryman & deliveryman, Order & order) const;
 };
 
 
