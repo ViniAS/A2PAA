@@ -102,6 +102,7 @@ void CityGraph::Dijkstra(int s, float *dist, int *parents) const {
 }
 
 Deliveryman * CityGraph::getNearestDeliverymans(const Order & order, const int n) const {
+    //Determines the nearest deliveryman to the store
     auto *nearest = new Deliveryman[n];
     float *dist = new float[numVertices];
     int *parents = new int[numVertices];
@@ -124,22 +125,28 @@ Deliveryman * CityGraph::getNearestDeliverymans(const Order & order, const int n
 }
 
 vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order const & order) const{
+    //get path of deliveryman to store and then to the client
+
     float *dist = new float[numVertices];
     int *parents = new int[numVertices];
     Dijkstra(order.store, dist, parents);
 
     vector<int> path;
     path.push_back(deliveryman.node);
-    while (parents[path.back()] != order.store)
+    while (parents[path.back()] != order.store) {
+        if (parents[path.back()] == -1) return {};
         path.push_back(parents[path.back()]);
+    }
     vector<int> path2;
 
     int node = dist[order.node1] + order.distance1 < dist[order.node2] + order.distance2 ? order.node1 : order.node2;
     path2.push_back(node);
-    while (parents[path2.back()] != order.store)
+    while (parents[path2.back()] != order.store) {
+        if (parents[path2.back()] == -1) return {};
         path2.push_back(parents[path2.back()]);
+    }
 
-    for(int i=path2.size()-1; i>=0; i--)
+    for(int i=path2.size()-1; i>0; i--)
         path.push_back(path2[i]);
 
     return path;

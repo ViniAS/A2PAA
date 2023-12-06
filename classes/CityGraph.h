@@ -85,9 +85,9 @@ public:
 
     void Dijkstra(int s, float *dist, int *parents) const;
 
-    [[nodiscard]] Deliveryman * getNearestDeliverymans(Order & order, int n) const;
+    [[nodiscard]] Deliveryman * getNearestDeliverymans(const Order & order, int n) const;
 
-    [[nodiscard]] vector<int> getDeliveryPath(Deliveryman & deliveryman, Order & order) const;
+    [[nodiscard]] vector<int> getDeliveryPath(const Deliveryman & deliveryman, const Order & order) const;
 };
 
 
