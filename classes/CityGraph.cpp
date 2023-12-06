@@ -108,6 +108,7 @@ Deliveryman * CityGraph::getNearestDeliverymans(const Order & order, const int n
     int *parents = new int[numVertices];
     Dijkstra(order.node1, dist, parents);
 
+    //creates a heap with the deliverymans to find the n nearest
     priority_queue<pair<float, Deliveryman>,
         vector<pair<float,Deliveryman>>, greater<>> heap;
     for (Deliveryman driver: deliverymans) {
@@ -129,17 +130,23 @@ vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order co
 
     float *dist = new float[numVertices];
     int *parents = new int[numVertices];
+    //undirected graph, so the path is the same in both ways, so we can use the same dijkstra to find the path
+    //from the deliveryman to the store and from the store to the client
     Dijkstra(order.store, dist, parents);
 
+    //get path from deliveryman to store
     vector<int> path;
     path.push_back(deliveryman.node);
     while (parents[path.back()] != order.store) {
         if (parents[path.back()] == -1) return {};
         path.push_back(parents[path.back()]);
     }
-    vector<int> path2;
 
+
+    vector<int> path2;
+    //client addres is in a edge, so we need to check which node has the shortest path to the client
     int node = dist[order.node1] + order.distance1 < dist[order.node2] + order.distance2 ? order.node1 : order.node2;
+    //get path from store to client
     path2.push_back(node);
     while (parents[path2.back()] != order.store) {
         if (parents[path2.back()] == -1) return {};
@@ -148,16 +155,20 @@ vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order co
 
     for(int i=path2.size()-1; i>0; i--)
         path.push_back(path2[i]);
-
+    delete[] dist;
+    delete[] parents;
     return path;
 }
 
 vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order){
+    //tuple stores the distance from the deliveryman to the store, the deliveryman, the distribution center and the node of the client
     tuple<float, Deliveryman, DistributionCenter, int> nearest = make_tuple(numeric_limits<float>::infinity(),
         Deliveryman(), DistributionCenter(),-1);
+    //we need to check all distribution centers to find the one with the cheapest path that has the product
     for(auto center: distributionCenters) {
         if (!center.products.count(order.product)&& center.products[order.product].first > 0) continue;
 
+        //We store the cpt for future use
         if (center.cpt.empty()) {
             vector<float> dist(numVertices);
             vector<int> parents(numVertices);
@@ -169,21 +180,23 @@ vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order){
             center.dist[order.node2] + order.distance2);
         int const nodeClient = distCenterClient == center.dist[order.node1] + order.distance1 ?
                                 order.node1 : order.node2;
-
+        //we need to check all deliverymans to find the one with the cheapest path to the distribution center
         for (auto deliveryman: deliverymans)
             if(distCenterClient+center.dist[deliveryman.node]<get<0>(nearest))
                 nearest = make_tuple(distCenterClient+center.dist[deliveryman.node], deliveryman, center, nodeClient);
     }
     if (get<3>(nearest) == -1) return {};
+    //get path from deliveryman to distribution center
     vector<int> path;
     path.push_back(get<1>.node);
     while (get<2>(nearest).cpt[path.back()] != get<2>(nearest).node) {
         if (get<2>(nearest).cpt[path.back()] == -1) return {};
         path.push_back(get<2>(nearest).cpt[path.back()]);
     }
+    //get path from distribution center to client
     vector<int> path2;
     path2.push_back(get<3>(nearest));
-    while (get<2>(nearest).cpt[path2.back()] != get<3>(nearest)) {
+    while (get<2>(nearest).cpt[path2.back()] != get<2>(nearest)) {
         if (get<2>(nearest).cpt[path2.back()] == -1) return {};
         path2.push_back(get<2>(nearest).cpt[path2.back()]);
     }
