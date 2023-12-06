@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <tuple>
+#include <unordered_map>
 using namespace std;
 
 struct Edge {
@@ -34,17 +36,24 @@ struct Order {
 
 struct DistributionCenter {
     int node;
-    vector<tuple<string,int,float>> produtos; //product, quantity, weight
+    unordered_map<string, pair<int,float>> products; //product, quantity, weight
     vector<int> cpt; //Cheapest path tree
-    vector<int> dist;
-    DistributionCenter(const int node, vector<tuple<string,int,float>> & produtos) : node(node), produtos(std::move(produtos)) {}
+    vector<float> dist;
+    DistributionCenter(const int node, unordered_map<string,pair<int,float>> & produtos) : node(node), products(std::move(produtos)) {}
+    bool operator>(const DistributionCenter& other) const {
+        return node > other.node;
+    }
+    DistributionCenter() : node(-1){}
+    bool operator<(const DistributionCenter& other) const {
+        return node < other.node;
+    }
 };
 
 struct Deliveryman {
     int node;
     float capacity;
     Deliveryman(const int node, const float capacity) : node(node), capacity(capacity) {}
-    Deliveryman(){}
+    Deliveryman(): node(-1), capacity(-1){}
     bool operator>(const Deliveryman& other) const {
         return capacity > other.capacity;
     }
@@ -88,6 +97,8 @@ public:
     [[nodiscard]] Deliveryman * getNearestDeliverymans(const Order & order, int n) const;
 
     [[nodiscard]] vector<int> getDeliveryPath(const Deliveryman & deliveryman, const Order & order) const;
+
+    [[nodiscard]] vector<int> getDeliveryPathWithDistribution(const Deliveryman & deliveryman, const Order & order);
 };
 
 

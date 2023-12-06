@@ -109,7 +109,7 @@ Deliveryman * CityGraph::getNearestDeliverymans(const Order & order, const int n
     Dijkstra(order.node1, dist, parents);
 
     priority_queue<pair<float, Deliveryman>,
-        std::vector<pair<float,Deliveryman>>, std::greater<>> heap;
+        vector<pair<float,Deliveryman>>, greater<>> heap;
     for (Deliveryman driver: deliverymans) {
         heap.emplace(dist[order.store], driver);
     }
@@ -144,6 +144,48 @@ vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order co
     while (parents[path2.back()] != order.store) {
         if (parents[path2.back()] == -1) return {};
         path2.push_back(parents[path2.back()]);
+    }
+
+    for(int i=path2.size()-1; i>0; i--)
+        path.push_back(path2[i]);
+
+    return path;
+}
+
+vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order){
+    tuple<float, Deliveryman, DistributionCenter, int> nearest = make_tuple(numeric_limits<float>::infinity(),
+        Deliveryman(), DistributionCenter(),-1);
+    for(auto center: distributionCenters) {
+        if (!center.products.count(order.product)&& center.products[order.product].first > 0) continue;
+
+        if (center.cpt.empty()) {
+            vector<float> dist(numVertices);
+            vector<int> parents(numVertices);
+            Dijkstra(center.node, dist.data(), parents.data());
+            center.cpt = parents;
+            center.dist = dist;
+        }
+        float const distCenterClient = min(center.dist[order.node1] + order.distance1,
+            center.dist[order.node2] + order.distance2);
+        int const nodeClient = distCenterClient == center.dist[order.node1] + order.distance1 ?
+                                order.node1 : order.node2;
+
+        for (auto deliveryman: deliverymans)
+            if(distCenterClient+center.dist[deliveryman.node]<get<0>(nearest))
+                nearest = make_tuple(distCenterClient+center.dist[deliveryman.node], deliveryman, center, nodeClient);
+    }
+    if (get<3>(nearest) == -1) return {};
+    vector<int> path;
+    path.push_back(get<1>.node);
+    while (get<2>(nearest).cpt[path.back()] != get<2>(nearest).node) {
+        if (get<2>(nearest).cpt[path.back()] == -1) return {};
+        path.push_back(get<2>(nearest).cpt[path.back()]);
+    }
+    vector<int> path2;
+    path2.push_back(get<3>(nearest));
+    while (get<2>(nearest).cpt[path2.back()] != get<3>(nearest)) {
+        if (get<2>(nearest).cpt[path2.back()] == -1) return {};
+        path2.push_back(get<2>(nearest).cpt[path2.back()]);
     }
 
     for(int i=path2.size()-1; i>0; i--)
