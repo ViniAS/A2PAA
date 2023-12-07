@@ -149,16 +149,20 @@ TEST(CityGraphTest, GetNearestDeliverymans) {
     Deliveryman d2(1, 10);
     Deliveryman d3(2, 10);
 
+    graph.deliverymans.push_back(d1);
+    graph.deliverymans.push_back(d2);
+    graph.deliverymans.push_back(d3);
+
     std::string product = "Livro";
-    // Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
-    // std::cout << d1.node << std::endl;
-    // Deliveryman* nearest = graph.getNearestDeliverymans(exampleOrder, 1);
+    Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
 
-    // std::cout << nearest[0].node << std::endl;
-    // // Test nearest deliverymans
-    // EXPECT_EQ(nearest[0].node, d1.node);
+    Deliveryman* nearest = graph.getNearestDeliverymans(exampleOrder, 1);
 
-    // delete[] nearest;
+
+    // Test nearest deliverymans
+    EXPECT_EQ(nearest[0].node, d1.node);
+
+    delete[] nearest;
 }
 
 TEST(CityGraphTest, GetDeliveryPathLinearCase) {
@@ -169,6 +173,8 @@ TEST(CityGraphTest, GetDeliveryPathLinearCase) {
     graph.addEdge(3, 4, 4.0f);
 
     Deliveryman deliveryman(0, 100);
+
+    graph.deliverymans.push_back(deliveryman);
 
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 0);
@@ -188,6 +194,7 @@ TEST(CityGraphTest, GetDeliveryPathNonTrivialCase) {
     graph.addEdge(3, 4, 4.0f);
 
     Deliveryman deliveryman(0, 100);
+    graph.deliverymans.push_back(deliveryman);
 
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 1);
@@ -196,6 +203,74 @@ TEST(CityGraphTest, GetDeliveryPathNonTrivialCase) {
 
     // Test delivery path
     vector<int> expectedPath = {0, 1, 2, 3};
+    EXPECT_EQ(path, expectedPath);
+}
+
+TEST(CityGraphTest, GetDeliveryPathGoingBackCase) {
+    CityGraph graph(5);
+    graph.addEdge(0, 1, 1.0f);
+    graph.addEdge(1, 2, 2.0f);
+    graph.addEdge(2, 3, 3.0f);
+    graph.addEdge(3, 4, 4.0f);
+
+    Deliveryman deliveryman(1, 100);
+    graph.deliverymans.push_back(deliveryman);
+
+    std::string product = "Livro";
+    Order order(3, 4, 1.5f, 2.5f, product, 0);
+
+    vector<int> path = graph.getDeliveryPath(deliveryman, order);
+
+    // Test delivery path
+    vector<int> expectedPath = {1, 0, 1, 2, 3};
+    EXPECT_EQ(path, expectedPath);
+}
+
+TEST(CityGraphTest, GetDeliveryPathCliqueCase) {
+    CityGraph graph(4);
+    graph.addEdge(0, 1, 1.0f);
+    graph.addEdge(0, 2, 1.0f);
+    graph.addEdge(0, 3, 1.0f);
+    graph.addEdge(1, 2, 2.0f);
+    graph.addEdge(1, 3, 2.0f);
+    graph.addEdge(2, 3, 3.0f);
+
+    Deliveryman deliveryman(0, 100);
+    graph.deliverymans.push_back(deliveryman);
+
+    std::string product = "Livro";
+    Order order(1, 2, 2.0f, 0.0f, product, 3);
+
+    vector<int> path = graph.getDeliveryPath(deliveryman, order);
+
+    // Test delivery path
+    vector<int> expectedPath = {0, 3, 2};
+    EXPECT_EQ(path, expectedPath);
+}
+
+TEST(CityGraphTest, GetDeliveryPathHeavyWeightsCase) {
+    CityGraph graph(5);
+    graph.addEdge(0, 1, 100.0f);
+    graph.addEdge(0, 2, 100.0f);
+    graph.addEdge(0, 3, 1.0f);
+    graph.addEdge(0, 4, 100.0f);
+    graph.addEdge(1, 2, 1.0f);
+    graph.addEdge(1, 3, 100.0f);
+    graph.addEdge(1, 4, 1.0f);
+    graph.addEdge(2, 3, 1.0f);
+    graph.addEdge(2, 4, 100.0f);
+    graph.addEdge(3, 4, 1.0f);
+
+    Deliveryman deliveryman(0, 100);
+    graph.deliverymans.push_back(deliveryman);
+
+    std::string product = "Livro";
+    Order order(1, 2, 1.0f, 0.0f, product, 4);
+
+    vector<int> path = graph.getDeliveryPath(deliveryman, order);
+
+    // Test delivery path
+    vector<int> expectedPath = {0, 3, 4, 1, 2};
     EXPECT_EQ(path, expectedPath);
 }
 
