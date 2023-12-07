@@ -36,7 +36,7 @@ bool CityGraph::removeEdge(const int v1, const int v2) {
     for (auto &[distance, node]: adjLists[v1]) {
         if (node == v2) {
             adjLists[v1].remove({distance, node});
-            adjLists[v2].remove({distance, node});
+            adjLists[v2].remove({distance, v1});
             numEdges--;
             return true;
         }
@@ -256,6 +256,11 @@ vector<int> CityGraph::getDeliveryPathWithDistribution2(const Order & order) {
             break;
         }
     }
+    //remove the new node from the graph
+    for(auto edge: adjLists[numVertices-1]) {
+        adjLists[edge.node].remove({edge.distance, numVertices-1});
+    }
+    adjLists.pop_back();
     return path;
 }
 
