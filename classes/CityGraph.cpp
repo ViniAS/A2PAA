@@ -101,9 +101,9 @@ void CityGraph::Dijkstra(int s, float *dist, int *parents) const {
     delete[] checked;
 }
 
-Deliveryman * CityGraph::getNearestDeliverymans(const Order & order, const int n) const {
+vector<Deliveryman> CityGraph::getNearestDeliverymans(const Order & order) const {
     //Determines the nearest deliveryman to the store
-    auto *nearest = new Deliveryman[n];
+    vector<Deliveryman> nearest;
     float *dist = new float[numVertices];
     int *parents = new int[numVertices];
     Dijkstra(order.node1, dist, parents);
@@ -114,9 +114,9 @@ Deliveryman * CityGraph::getNearestDeliverymans(const Order & order, const int n
     for (Deliveryman driver: deliverymans) {
         heap.emplace(dist[order.store], driver);
     }
-
-    for (int i = 0; i < n; ++i) {
-        nearest[i] = heap.top().second;
+    float const min_dist = dist[order.store];
+    for (int i = 0;!heap.empty() && heap.top().first==min_dist ; ++i) {
+        nearest.emplace_back(heap.top().second);
         heap.pop();
     }
 

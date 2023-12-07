@@ -62,6 +62,10 @@ struct Deliveryman {
         return capacity < other.capacity;
     }
 
+    bool operator==(const Deliveryman& other) const {
+        return node == other.node && capacity == other.capacity;
+    }
+
 };
 class CityGraph {
 private:
@@ -95,7 +99,7 @@ public:
 
     void Dijkstra(int s, float *dist, int *parents) const;
 
-    [[nodiscard]] Deliveryman * getNearestDeliverymans(const Order & order, int n) const;
+    [[nodiscard]] vector<Deliveryman> getNearestDeliverymans(const Order & order) const;
 
     [[nodiscard]] vector<int> getDeliveryPath(const Deliveryman & deliveryman, const Order & order) const;
 

@@ -158,12 +158,12 @@ TEST(CityGraphTest, GetNearestDeliverymans) {
     std::string product = "Livro";
     const Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
 
-    const Deliveryman* nearest = graph.getNearestDeliverymans(exampleOrder, 1);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(exampleOrder);
 
     // Test nearest deliverymans
     EXPECT_EQ(nearest[0].node, graph.deliverymans[0].node);
 
-    delete[] nearest;
+
 }
 
 TEST(CityGraphTest, GetNearestDeliverymansMoreThanOne) {
@@ -180,13 +180,12 @@ TEST(CityGraphTest, GetNearestDeliverymansMoreThanOne) {
     std::string product = "Livro";
     const Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
 
-    const Deliveryman* nearest = graph.getNearestDeliverymans(exampleOrder, 2);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(exampleOrder);
 
     // Test nearest deliverymans
-    EXPECT_EQ(nearest[0].node, graph.deliverymans[0].node);
-    EXPECT_EQ(nearest[1].node, graph.deliverymans[1].node);
+    EXPECT_EQ(nearest[0], graph.deliverymans[0]);
 
-    delete[] nearest;
+
 }
 
 TEST(CityGraphTest, GetDeliveryPathLinear) {
@@ -202,9 +201,9 @@ TEST(CityGraphTest, GetDeliveryPathLinear) {
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 0);
 
-    const Deliveryman* nearest = graph.getNearestDeliverymans(order, 1);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
 
-    vector<int> path = graph.getDeliveryPath(*nearest, order);
+    vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
     // Test delivery path
     vector<int> expectedPath = {0, 1, 2, 3};
@@ -223,9 +222,9 @@ TEST(CityGraphTest, GetDeliveryPathNonTrivial) {
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 1);
 
-    const Deliveryman* nearest = graph.getNearestDeliverymans(order, 1);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
 
-    vector<int> path = graph.getDeliveryPath(*nearest, order);
+    vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
     // Test delivery path
     vector<int> expectedPath = {0, 1, 2, 3};
@@ -244,9 +243,9 @@ TEST(CityGraphTest, GetDeliveryPathGoingBack) {
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 0);
 
-    const Deliveryman* nearest = graph.getNearestDeliverymans(order, 1);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
 
-    vector<int> path = graph.getDeliveryPath(*nearest, order);
+    vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
     // Test delivery path
     vector<int> expectedPath = {1, 0, 1, 2, 3};
@@ -267,9 +266,9 @@ TEST(CityGraphTest, GetDeliveryPathClique) {
     std::string product = "Livro";
     Order order(1, 2, 2.0f, 0.0f, product, 3);
 
-    const Deliveryman* nearest = graph.getNearestDeliverymans(order, 1);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
 
-    vector<int> path = graph.getDeliveryPath(*nearest, order);
+    vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
     // Test delivery path
     vector<int> expectedPath = {0, 3, 2};
@@ -294,9 +293,9 @@ TEST(CityGraphTest, GetDeliveryPathHeavyWeights) {
     std::string product = "Livro";
     Order order(1, 2, 1.0f, 0.0f, product, 4);
 
-    const Deliveryman* nearest = graph.getNearestDeliverymans(order, 1);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
 
-    vector<int> path = graph.getDeliveryPath(*nearest, order);
+    vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
     // Test delivery path
     vector<int> expectedPath = {0, 3, 4, 1, 2};
