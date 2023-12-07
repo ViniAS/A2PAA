@@ -145,22 +145,23 @@ TEST(CityGraphTest, GetNearestDeliverymans) {
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
 
-    Deliveryman d1(0, 10);
-    Deliveryman d2(1, 10);
-    Deliveryman d3(2, 10);
+    graph.deliverymans.emplace_back(0, 10);
+    graph.deliverymans.emplace_back(1, 10);
+    graph.deliverymans.emplace_back(2, 10);
+
 
     graph.deliverymans.push_back(d1);
     graph.deliverymans.push_back(d2);
     graph.deliverymans.push_back(d3);
 
     std::string product = "Livro";
-    Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
+    const Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
+    std::cout << graph.deliverymans[0].node << std::endl;
+    const Deliveryman* nearest = graph.getNearestDeliverymans(exampleOrder, 1);
 
-    Deliveryman* nearest = graph.getNearestDeliverymans(exampleOrder, 1);
-
-
+    std::cout << nearest[0].node << std::endl;
     // Test nearest deliverymans
-    EXPECT_EQ(nearest[0].node, d1.node);
+    EXPECT_EQ(nearest[0].node, graph.deliverymans[0].node);
 
     delete[] nearest;
 }
@@ -192,6 +193,7 @@ TEST(CityGraphTest, GetDeliveryPathNonTrivialCase) {
     graph.addEdge(1, 2, 2.0f);
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
+
 
     Deliveryman deliveryman(0, 100);
     graph.deliverymans.push_back(deliveryman);
