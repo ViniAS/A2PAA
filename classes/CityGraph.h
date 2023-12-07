@@ -81,6 +81,8 @@ public:
 
     bool removeEdge(int v1, int v2);
 
+    void printAdjLists() const;
+
     [[nodiscard]] int getNumVertices() const;
 
     [[nodiscard]] int getNumEdges() const;
@@ -98,6 +100,8 @@ public:
     [[nodiscard]] vector<int> getDeliveryPath(const Deliveryman & deliveryman, const Order & order) const;
 
     [[nodiscard]] vector<int> getDeliveryPathWithDistribution2(const Order & order);
+
+    [[nodiscard]] vector<int> getDeliveryPathWithDistribution(const Order & order);
 };
 
 

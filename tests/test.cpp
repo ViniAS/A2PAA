@@ -186,6 +186,7 @@ TEST(CityGraphTest, GetDeliveryPathNonTrivialCase) {
     graph.addEdge(1, 2, 2.0f);
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
+    
 
     Deliveryman deliveryman(0, 100);
 

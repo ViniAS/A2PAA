@@ -8,7 +8,7 @@
 #include <vector>
 #include <list>
 #include <queue>
-
+#include <iostream>
 using namespace std;
 
 CityGraph::CityGraph(const int numVertices) : numVertices(numVertices), numEdges(0) {
@@ -24,8 +24,8 @@ bool CityGraph::addEdge(const int v1, const int v2, const float distance) {
     for (auto &[weight, node]: adjLists[v1]) {
         if (node == v2) return false;
     }
-    adjLists[v1].emplace_back(v2,distance);
-    adjLists[v2].emplace_back(v1,distance);
+    adjLists[v1].emplace_back(distance,v2);
+    adjLists[v2].emplace_back(distance,v1);
     numEdges++;
     return true;
 }
@@ -138,10 +138,12 @@ vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order co
     vector<int> path;
     path.push_back(deliveryman.node);
     while (parents[path.back()] != order.store) {
-        if (parents[path.back()] == -1) return {};
+        if (parents[path.back()] == -1) {
+            return {};
+        }
         path.push_back(parents[path.back()]);
     }
-
+    if(path.back()!=order.store) path.push_back(order.store);
 
     vector<int> path2;
     //client addres is in a edge, so we need to check which node has the shortest path to the client
@@ -153,7 +155,7 @@ vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order co
         path2.push_back(parents[path2.back()]);
     }
 
-    for(int i=path2.size()-1; i>0; i--)
+    for(int i=path2.size()-1; i>=0; i--)
         path.push_back(path2[i]);
     delete[] dist;
     delete[] parents;
@@ -188,7 +190,7 @@ vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order){
     if (get<3>(nearest) == -1) return {};
     //get path from deliveryman to distribution center
     vector<int> path;
-    path.push_back(get<1>.node);
+    path.push_back(get<1>(nearest).node);
     while (get<2>(nearest).cpt[path.back()] != get<2>(nearest).node) {
         if (get<2>(nearest).cpt[path.back()] == -1) return {};
         path.push_back(get<2>(nearest).cpt[path.back()]);
@@ -196,7 +198,7 @@ vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order){
     //get path from distribution center to client
     vector<int> path2;
     path2.push_back(get<3>(nearest));
-    while (get<2>(nearest).cpt[path2.back()] != get<2>(nearest)) {
+    while (get<2>(nearest).cpt[path2.back()] != get<2>(nearest).node) {
         if (get<2>(nearest).cpt[path2.back()] == -1) return {};
         path2.push_back(get<2>(nearest).cpt[path2.back()]);
     }
@@ -247,8 +249,8 @@ vector<int> CityGraph::getDeliveryPathWithDistribution2(const Order & order) {
         if (cptDrivers[path.back()] == -1) return {};
         path.push_back(cptDrivers[path.back()]);
         if (cptDrivers[path.back()]==numVertices-1) {
-            int const * cptCenters = nearestNodes[path.back] == order.node1 ? cptCenters1 : cptCenters2;
-            int const node = nearestNodes[path.back];
+            int const * cptCenters = nearestNodes[path.back()] == order.node1 ? cptCenters1 : cptCenters2;
+            int const node = nearestNodes[path.back()];
             while(cptCenters[path.back()] != node) {
                 if (cptCenters[path.back()] == -1) return {};
                 path.push_back(cptCenters[path.back()]);
@@ -263,4 +265,14 @@ vector<int> CityGraph::getDeliveryPathWithDistribution2(const Order & order) {
     adjLists.pop_back();
     return path;
 }
+
+void CityGraph::printAdjLists() const {
+    for(auto & adjList: adjLists) {
+        for(auto const edge: adjList) {
+            cout << edge.node << ","<< edge.distance << " ";
+        }
+        cout << endl;
+    }
+}
+
 
