@@ -206,3 +206,56 @@ vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order){
 
     return path;
 }
+
+vector<int> CityGraph::getDeliveryPathWithDistribution2(const Order & order) {
+    int * cptCenters1 = new int[numVertices];
+    float * distCenters1 = new float[numVertices];
+    Dijkstra(order.node1, distCenters1, cptCenters1);
+    int * cptCenters2 = new int[numVertices];
+    float * distCenters2 = new float[numVertices];
+    Dijkstra(order.node2, distCenters2, cptCenters2);
+    adjLists.emplace_back();
+    numVertices++;
+    unordered_map<int, int> nearestNodes; //stores wich side of the edge has the dearest distance to the client
+    for(auto center: distributionCenters) {
+        //we are adding a new node to the graph, that is connected to all distribution centers with the distance
+        //from the center to the client so that we can find the cheapest path to the client passing by a center
+        if (!center.products.count(order.product)&& center.products[order.product].first > 0) continue;
+        float const distCenterClient = min(distCenters1[center.node] + order.distance1,
+                                           distCenters2[center.node] + order.distance2);
+        int const nodeClient = distCenterClient == distCenters1[center.node] + order.distance1 ?
+                               order.node1 : order.node2;
+        //add edge from the new node to the center and from the center to the new node
+        adjLists[center.node].emplace_back(distCenterClient, numVertices-1);
+        adjLists[numVertices-1].emplace_back(distCenterClient, center.node);
+        nearestNodes[center.node] = nodeClient;
+    }
+    int * cptDrivers = new int[numVertices];
+    float * distDrivers = new float[numVertices];
+    Dijkstra(numVertices-1, distDrivers, cptDrivers);
+    //we need to check all deliverymans to find the one with the cheapest path to the client
+    pair<float, Deliveryman> nearestDriver = make_pair(numeric_limits<float>::infinity(), Deliveryman());
+    for(auto deliveryman: deliverymans) {
+        if(distDrivers[deliveryman.node]<nearestDriver.first)
+            nearestDriver = make_pair(distDrivers[deliveryman.node], deliveryman);
+    }
+    if (nearestDriver.second.node == -1) return {};
+    //get path from deliveryman to distribution center then to client
+    vector<int> path;
+    path.push_back(nearestDriver.second.node);
+    while (true) {
+        if (cptDrivers[path.back()] == -1) return {};
+        path.push_back(cptDrivers[path.back()]);
+        if (cptDrivers[path.back()]==numVertices-1) {
+            int const * cptCenters = nearestNodes[path.back] == order.node1 ? cptCenters1 : cptCenters2;
+            int const node = nearestNodes[path.back];
+            while(cptCenters[path.back()] != node) {
+                if (cptCenters[path.back()] == -1) return {};
+                path.push_back(cptCenters[path.back()]);
+            }
+            break;
+        }
+    }
+    return path;
+}
+

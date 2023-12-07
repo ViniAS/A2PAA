@@ -76,8 +76,7 @@ public:
     explicit CityGraph(int numVertices);
 
     ~CityGraph();
-
-
+    
     bool addEdge(int v1, int v2, float distance);
 
     bool removeEdge(int v1, int v2);
@@ -98,7 +97,7 @@ public:
 
     [[nodiscard]] vector<int> getDeliveryPath(const Deliveryman & deliveryman, const Order & order) const;
 
-    [[nodiscard]] vector<int> getDeliveryPathWithDistribution(const Deliveryman & deliveryman, const Order & order);
+    [[nodiscard]] vector<int> getDeliveryPathWithDistribution2(const Order & order);
 };
 
 
