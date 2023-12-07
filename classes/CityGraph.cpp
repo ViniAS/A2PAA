@@ -171,6 +171,7 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
     Dijkstra(order.node2, distCenters2, cptCenters2);
     adjLists.emplace_back();
     numVertices++;
+
     unordered_map<int, int> nearestNodes; //stores wich side of the edge has the dearest distance to the client
     for(auto center: distributionCenters) {
         //we are adding a new node to the graph, that is connected to all distribution centers with the distance
@@ -185,36 +186,43 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
         adjLists[numVertices-1].emplace_back(distCenterClient, center.node);
         nearestNodes[center.node] = nodeClient;
     }
+
     int * cptDrivers = new int[numVertices];
     float * distDrivers = new float[numVertices];
     Dijkstra(numVertices-1, distDrivers, cptDrivers);
-    //we need to check all deliverymans to find the one with the cheapest path to the client
+    //we add all deliverymans to a heap to find the ones closest to the client one
     priority_queue<pair<float, Deliveryman>,
         vector<pair<float,Deliveryman>>, greater<>> driversHeap;
     for(auto deliveryman: deliverymans) {
         driversHeap.emplace(distDrivers[deliveryman.node], deliveryman);
     }
-    //get path from deliveryman to distribution center then to client
+
+    //get paths from deliveryman to distribution center then to client
     vector<tuple<Deliveryman, DistributionCenter, vector<int>>> paths;
     const float min_dist = distDrivers[driversHeap.top().second.node];
     paths.emplace_back(driversHeap.top().second,DistributionCenter(),vector<int>{driversHeap.top().second.node});
+    //we'll get all paths with the same distance to the client
     for (int i = 0; !driversHeap.empty() && driversHeap.top().first == min_dist;) {
         if (cptDrivers[get<2>(paths[i]).back()] == -1) return {};
+        //if the parent of the node is the added node, we found the path to the distribution center
         if (cptDrivers[get<2>(paths[i]).back()]==numVertices-1) {
             int const * cptCenters = nearestNodes[get<2>(paths[i]).back()] == order.node1 ? cptCenters1 : cptCenters2;
             int const node = nearestNodes[get<2>(paths[i]).back()];
+            //find the distribution center of the node
             for(auto const & distributionCenter : distributionCenters) {
                 if (distributionCenter.node == get<2>(paths[i]).back()) {
                     get<1>(paths[i]) = distributionCenter;
                     break;
                 }
             }
+            //get the path from the distribution center to the client
             while(get<2>(paths[i]).back() != node) {
                 if (cptCenters[get<2>(paths[i]).back()] == -1) return {};
                 get<2>(paths[i]).push_back(cptCenters[get<2>(paths[i]).back()]);
             }
             i++;
             driversHeap.pop();
+            //if the next deliveryman has the same distance to the client, we add it to the paths
             if (driversHeap.top().first == min_dist)
                 paths.emplace_back(driversHeap.top().second,DistributionCenter(),vector<int>{driversHeap.top().second.node});
             else break;
