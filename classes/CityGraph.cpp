@@ -258,7 +258,7 @@ vector<int> CityGraph::getDeliveryPathWithDistribution2(const Order & order) {
     }
     //remove the new node from the graph
     for(auto edge: adjLists[numVertices-1]) {
-        adjLists[edge.node].remove({edge.distance, numVertices-1});
+        adjLists[edge.node].pop_back();
     }
     adjLists.pop_back();
     return path;
