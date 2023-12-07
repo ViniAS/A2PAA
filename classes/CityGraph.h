@@ -99,8 +99,6 @@ public:
 
     [[nodiscard]] vector<int> getDeliveryPath(const Deliveryman & deliveryman, const Order & order) const;
 
-    [[nodiscard]] vector<int> getDeliveryPathWithDistribution2(const Order & order);
-
     [[nodiscard]] vector<int> getDeliveryPathWithDistribution(const Order & order);
 };
 

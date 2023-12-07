@@ -325,7 +325,7 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionLinear) {
     vector<int> path = graph.getDeliveryPathWithDistribution(order);
 
     // Test delivery path
-    vector<int> expectedPath = {0, 1, 2, 3};
+    vector<int> expectedPath = {2, 3};
     EXPECT_EQ(path, expectedPath);
 }
 
@@ -340,7 +340,7 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionGoingBack) {
 
     unordered_map<string, pair<int,float>> products = {{"Product1", {10, 1.0f}}, {"Livro", {5, 0.5f}}};
 
-    graph.distributionCenters.emplace_back(2, products);
+    graph.distributionCenters.emplace_back(0, products);
 
     std::string product = "Livro";
     Order order(3, 4, 0.0f, 4.0f, product, 0);
@@ -368,22 +368,21 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionMoreThanOneCenter) {
 
     std::string product = "Livro";
     Order order(3, 4, 0.0f, 4.0f, product, 0);
-
     vector<int> path = graph.getDeliveryPathWithDistribution(order);
-
     // Test delivery path
     vector<int> expectedPath = {2, 1, 2, 3};
     EXPECT_EQ(path, expectedPath);
 }
 
 TEST(CityGraphTest, GetDeliveryPathWithDistributionClique) {
-    CityGraph graph(4);
+    CityGraph graph(5);
     graph.addEdge(0, 1, 1.0f);
     graph.addEdge(0, 2, 1.0f);
     graph.addEdge(0, 3, 1.0f);
     graph.addEdge(1, 2, 1.0f);
     graph.addEdge(1, 3, 1.0f);
     graph.addEdge(2, 3, 1.0f);
+    graph.addEdge(3,4,4.0f);
 
     graph.deliverymans.emplace_back(2, 100);
 
@@ -393,9 +392,7 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionClique) {
 
     std::string product = "Livro";
     Order order(3, 4, 0.0f, 4.0f, product, 0);
-
     vector<int> path = graph.getDeliveryPathWithDistribution(order);
-
     // Test delivery path
     vector<int> expectedPath = {2, 1, 3};
     EXPECT_EQ(path, expectedPath);
