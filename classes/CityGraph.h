@@ -47,6 +47,9 @@ struct DistributionCenter {
     bool operator<(const DistributionCenter& other) const {
         return node < other.node;
     }
+    bool operator==(const DistributionCenter& other) const {
+        return node == other.node;
+    }
 };
 
 struct Deliveryman {
@@ -103,7 +106,7 @@ public:
 
     [[nodiscard]] vector<int> getDeliveryPath(const Deliveryman & deliveryman, const Order & order) const;
 
-    [[nodiscard]] vector<int> getDeliveryPathWithDistribution(const Order & order);
+    [[nodiscard]] vector<tuple<Deliveryman, DistributionCenter, vector<int>>> getDeliveryPathWithDistribution(const Order & order);
 };
 
 

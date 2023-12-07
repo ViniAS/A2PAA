@@ -321,11 +321,13 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionLinear) {
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 0);
 
-    vector<int> path = graph.getDeliveryPathWithDistribution(order);
+    auto paths = graph.getDeliveryPathWithDistribution(order);
 
     // Test delivery path
-    vector<int> expectedPath = {2, 3};
-    EXPECT_EQ(path, expectedPath);
+    EXPECT_EQ(get<0>(paths[0]).node, 2);
+    EXPECT_EQ(get<1>(paths[0]).node, 2);
+    vector<int> path = {2, 3};
+    EXPECT_EQ(get<2>(paths[0]), path);
 }
 
 TEST(CityGraphTest, GetDeliveryPathWithDistributionGoingBack) {
@@ -344,11 +346,13 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionGoingBack) {
     std::string product = "Livro";
     Order order(3, 4, 0.0f, 4.0f, product, 0);
 
-    vector<int> path = graph.getDeliveryPathWithDistribution(order);
+    auto paths = graph.getDeliveryPathWithDistribution(order);
 
-    // Test delivery path
-    vector<int> expectedPath = {3, 2, 1, 0, 1, 2, 3};
-    EXPECT_EQ(path, expectedPath);
+    // Test delivery path;
+    EXPECT_EQ(get<0>(paths[0]).node, 3);
+    EXPECT_EQ(get<1>(paths[0]).node, 0);
+    vector<int> path = {3, 2, 1, 0, 1, 2, 3};
+    EXPECT_EQ(get<2>(paths[0]), path);
 }
 
 TEST(CityGraphTest, GetDeliveryPathWithDistributionMoreThanOneCenter) {
@@ -367,10 +371,12 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionMoreThanOneCenter) {
 
     std::string product = "Livro";
     Order order(3, 4, 0.0f, 4.0f, product, 0);
-    vector<int> path = graph.getDeliveryPathWithDistribution(order);
+    auto paths = graph.getDeliveryPathWithDistribution(order);
     // Test delivery path
-    vector<int> expectedPath = {2, 1, 2, 3};
-    EXPECT_EQ(path, expectedPath);
+    EXPECT_EQ(get<0>(paths[0]).node, 2);
+    EXPECT_EQ(get<1>(paths[0]).node, 1);
+    vector<int> path = {2, 1, 2, 3};
+    EXPECT_EQ(get<2>(paths[0]), path);
 }
 
 TEST(CityGraphTest, GetDeliveryPathWithDistributionClique) {
@@ -391,10 +397,12 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionClique) {
 
     std::string product = "Livro";
     Order order(3, 4, 0.0f, 4.0f, product, 0);
-    vector<int> path = graph.getDeliveryPathWithDistribution(order);
+    auto paths = graph.getDeliveryPathWithDistribution(order);
     // Test delivery path
-    vector<int> expectedPath = {2, 1, 3};
-    EXPECT_EQ(path, expectedPath);
+    EXPECT_EQ(get<0>(paths[0]).node, 2);
+    EXPECT_EQ(get<1>(paths[0]).node, 1);
+    vector<int> path = {2, 1, 3};
+    EXPECT_EQ(get<2>(paths[0]), path);
 }
 
 TEST(CityGraphTest, GetDeliveryPathWithDistributionHeavyWeights) {
@@ -419,11 +427,13 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionHeavyWeights) {
     std::string product = "Livro";
     Order order(2, 4, 0.0f, 100.0f, product, 0);
 
-    vector<int> path = graph.getDeliveryPathWithDistribution(order);
+    auto paths = graph.getDeliveryPathWithDistribution(order);
 
     // Test delivery path
-    vector<int> expectedPath = {0, 3, 4, 1, 2};
-    EXPECT_EQ(path, expectedPath);
+    EXPECT_EQ(get<0>(paths[0]).node, 0);
+    EXPECT_EQ(get<1>(paths[0]).node, 4);
+    vector<int> path = {0, 3, 4, 1, 2};
+    EXPECT_EQ(get<2>(paths[0]), path);
 }
 
 int main(int argc, char **argv) {

@@ -162,7 +162,7 @@ vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order co
     return path;
 }
 
-vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order) {
+vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDeliveryPathWithDistribution(const Order & order) {
     int * cptCenters1 = new int[numVertices];
     float * distCenters1 = new float[numVertices];
     Dijkstra(order.node1, distCenters1, cptCenters1);
@@ -189,27 +189,38 @@ vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order) {
     float * distDrivers = new float[numVertices];
     Dijkstra(numVertices-1, distDrivers, cptDrivers);
     //we need to check all deliverymans to find the one with the cheapest path to the client
-    pair<float, Deliveryman> nearestDriver = make_pair(numeric_limits<float>::infinity(), Deliveryman());
+    priority_queue<pair<float, Deliveryman>,
+        vector<pair<float,Deliveryman>>, greater<>> driversHeap;
     for(auto deliveryman: deliverymans) {
-        if(distDrivers[deliveryman.node]<nearestDriver.first)
-            nearestDriver = make_pair(distDrivers[deliveryman.node], deliveryman);
+        driversHeap.emplace(distDrivers[deliveryman.node], deliveryman);
     }
-    if (nearestDriver.second.node == -1) return {};
     //get path from deliveryman to distribution center then to client
-    vector<int> path;
-    path.push_back(nearestDriver.second.node);
-    while (true) {
-        if (cptDrivers[path.back()] == -1) return {};
-        if (cptDrivers[path.back()]==numVertices-1) {
-            int const * cptCenters = nearestNodes[path.back()] == order.node1 ? cptCenters1 : cptCenters2;
-            int const node = nearestNodes[path.back()];
-            while(path.back() != node) {
-                if (cptCenters[path.back()] == -1) return {};
-                path.push_back(cptCenters[path.back()]);
+    vector<tuple<Deliveryman, DistributionCenter, vector<int>>> paths;
+    const float min_dist = distDrivers[driversHeap.top().second.node];
+    paths.emplace_back(driversHeap.top().second,DistributionCenter(),vector<int>{driversHeap.top().second.node});
+    for (int i = 0; !driversHeap.empty() && driversHeap.top().first == min_dist;) {
+        if (cptDrivers[get<2>(paths[i]).back()] == -1) return {};
+        if (cptDrivers[get<2>(paths[i]).back()]==numVertices-1) {
+            int const * cptCenters = nearestNodes[get<2>(paths[i]).back()] == order.node1 ? cptCenters1 : cptCenters2;
+            int const node = nearestNodes[get<2>(paths[i]).back()];
+            for(auto const & distributionCenter : distributionCenters) {
+                if (distributionCenter.node == get<2>(paths[i]).back()) {
+                    get<1>(paths[i]) = distributionCenter;
+                    break;
+                }
             }
-            break;
+            while(get<2>(paths[i]).back() != node) {
+                if (cptCenters[get<2>(paths[i]).back()] == -1) return {};
+                get<2>(paths[i]).push_back(cptCenters[get<2>(paths[i]).back()]);
+            }
+            i++;
+            driversHeap.pop();
+            if (driversHeap.top().first == min_dist)
+                paths.emplace_back(driversHeap.top().second,DistributionCenter(),vector<int>{driversHeap.top().second.node});
+            else break;
         }
-        path.push_back(cptDrivers[path.back()]);
+        else
+            get<2>(paths[i]).push_back(cptDrivers[get<2>(paths[i]).back()]);
 
     }
     //remove the new node from the graph
@@ -224,7 +235,7 @@ vector<int> CityGraph::getDeliveryPathWithDistribution(const Order & order) {
     delete[] distCenters1;
     delete[] distCenters2;
     delete[] distDrivers;
-    return path;
+    return paths;
 }
 
 void CityGraph::printAdjLists() const {
