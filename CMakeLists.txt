@@ -12,7 +12,8 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(A2PAA main.cpp
         classes/CityGraph.cpp
-        classes/CityGraph.h)
+        classes/CityGraph.h
+        tests/charts.cpp)
 target_link_libraries(A2PAA)
 
 enable_testing()
