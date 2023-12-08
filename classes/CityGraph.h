@@ -77,6 +77,11 @@ private:
     int numEdges;
     vector<list<Edge>> adjLists;
 
+    //helper function for getDeliveryPathWithDistribution
+    pair<DistributionCenter*,int>* getDistanceDistributionCenterToClient(const Order &order, const int *cptCenters1,
+                                                                       const int *cptCenters2, const float *distCenters1,
+                                                                          const float *distCenters2);
+
 public:
     vector<Deliveryman> deliverymen;
     vector<DistributionCenter> distributionCenters;

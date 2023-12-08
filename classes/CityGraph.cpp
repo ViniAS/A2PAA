@@ -161,18 +161,14 @@ vector<int> CityGraph::getDeliveryPath(Deliveryman const & deliveryman, Order co
     delete[] parents;
     return path;
 }
-
-vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDeliveryPathWithDistribution(const Order & order) {
-    int * cptCenters1 = new int[numVertices];
-    float * distCenters1 = new float[numVertices];
-    Dijkstra(order.node1, distCenters1, cptCenters1);
-    int * cptCenters2 = new int[numVertices];
-    float * distCenters2 = new float[numVertices];
-    Dijkstra(order.node2, distCenters2, cptCenters2);
-    adjLists.emplace_back();
-    numVertices++;
-
-    auto * nearestNodes = new pair<DistributionCenter*, int>[numVertices]; //nearest distribution center to a node
+pair<DistributionCenter*,int>* CityGraph::getDistanceDistributionCenterToClient(const Order &order, const int *cptCenters1,
+                                                                       const int *cptCenters2, const float *distCenters1,
+                                                                          const float *distCenters2) {
+    //this function adds a new node to the graph, that is connected to all distribution centers with the distance
+    //from the center to the client so that we can find the cheapest path to the client passing by a center.
+    //It returns an array with the distribution center associated to a node (the node is the index of the array) and the
+    //final node of the path to the client (one of nodes of the order)
+    auto * nearestNodes = new pair<DistributionCenter*, int>[numVertices];
 
     for(auto& center: distributionCenters) {
         //we are adding a new node to the graph, that is connected to all distribution centers with the distance
@@ -187,11 +183,27 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
         adjLists[numVertices-1].emplace_back(distCenterClient, center.node);
         nearestNodes[center.node] = make_pair(&center,nodeClient);
     }
+    return nearestNodes;
+}
 
+vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDeliveryPathWithDistribution(const Order & order) {
+    int * cptCenters1 = new int[numVertices];
+    float * distCenters1 = new float[numVertices];
+    Dijkstra(order.node1, distCenters1, cptCenters1);
+    int * cptCenters2 = new int[numVertices];
+    float * distCenters2 = new float[numVertices];
+    Dijkstra(order.node2, distCenters2, cptCenters2);
+    adjLists.emplace_back();
+    numVertices++;
+
+    const auto *nearestNodes = getDistanceDistributionCenterToClient(order, cptCenters1, cptCenters2,
+                                                                                       distCenters1, distCenters2);
+
+    //We use dijkstra on the added node to find the cheapest path from a deliveryman to the client passing by a center
     int * cptDrivers = new int[numVertices];
     float * distDrivers = new float[numVertices];
     Dijkstra(numVertices-1, distDrivers, cptDrivers);
-    //we add all deliverymen to a heap to find the ones closest to the client one
+    //we add all deliverymen to a heap to find the ones closest to the client
     priority_queue<pair<float, Deliveryman*>,
         vector<pair<float,Deliveryman*>>, greater<>> driversHeap;
     for(auto &deliveryman: deliverymen) {
@@ -202,11 +214,14 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
     vector<tuple<Deliveryman, DistributionCenter, vector<int>>> paths;
     const float min_dist = distDrivers[(driversHeap.top().second)->node];
     paths.emplace_back(*(driversHeap.top().second),DistributionCenter(),vector<int>{(driversHeap.top().second)->node});
-    //we'll get all paths with the same distance to the client
+    //we'll get all paths with the minimun distance to the client
     for (int i = 0; !driversHeap.empty() && driversHeap.top().first == min_dist;) {
         if (cptDrivers[get<2>(paths[i]).back()] == -1) return {};
         //if the parent of the node is the added node, we found the path to the distribution center
         if (cptDrivers[get<2>(paths[i]).back()]==numVertices-1) {
+            //we are now going to find the path from the distribution center to the client
+
+            //get the distribution center of the node
             int const * cptCenters = nearestNodes[get<2>(paths[i]).back()].second == order.node1 ? cptCenters1 : cptCenters2;
             int const node = nearestNodes[get<2>(paths[i]).back()].second;
             //get the distribution center of the node
@@ -224,8 +239,10 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
                 paths.emplace_back(*(driversHeap.top().second),DistributionCenter(),vector<int>{(driversHeap.top().second)->node});
             else break;
         }
-        else
+        else {
+            //if the parent of the node is not the added node, we add the parent to the path
             get<2>(paths[i]).push_back(cptDrivers[get<2>(paths[i]).back()]);
+        }
 
     }
     //remove the new node from the graph
