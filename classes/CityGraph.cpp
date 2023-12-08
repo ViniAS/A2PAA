@@ -101,17 +101,17 @@ void CityGraph::Dijkstra(int s, float *dist, int *parents) const {
     delete[] checked;
 }
 
-vector<Deliveryman> CityGraph::getNearestDeliverymans(const Order & order) const {
+vector<Deliveryman> CityGraph::getNearestDeliverymen(const Order & order) const {
     //Determines the nearest deliveryman to the store
     vector<Deliveryman> nearest;
     float *dist = new float[numVertices];
     int *parents = new int[numVertices];
     Dijkstra(order.node1, dist, parents);
 
-    //creates a heap with the deliverymans to find the n nearest
+    //creates a heap with the deliverymen to find the n nearest
     priority_queue<pair<float, Deliveryman>,
         vector<pair<float,Deliveryman>>, greater<>> heap;
-    for (Deliveryman driver: deliverymans) {
+    for (Deliveryman driver: deliverymen) {
         heap.emplace(dist[order.store], driver);
     }
     float const min_dist = dist[order.store];
@@ -191,10 +191,10 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
     int * cptDrivers = new int[numVertices];
     float * distDrivers = new float[numVertices];
     Dijkstra(numVertices-1, distDrivers, cptDrivers);
-    //we add all deliverymans to a heap to find the ones closest to the client one
+    //we add all deliverymen to a heap to find the ones closest to the client one
     priority_queue<pair<float, Deliveryman>,
         vector<pair<float,Deliveryman>>, greater<>> driversHeap;
-    for(auto deliveryman: deliverymans) {
+    for(auto deliveryman: deliverymen) {
         driversHeap.emplace(distDrivers[deliveryman.node], deliveryman);
     }
 
