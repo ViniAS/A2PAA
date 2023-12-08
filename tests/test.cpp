@@ -144,44 +144,46 @@ TEST(CityGraphTest, DijkstraDistances) {
     EXPECT_EQ(parents[4], 3);
 }
 
-TEST(CityGraphTest, GetNearestDeliverymans) {
+TEST(CityGraphTest, GetNearestDeliverymen) {
     CityGraph graph(5);
     graph.addEdge(0, 1, 1.0f);
     graph.addEdge(1, 2, 2.0f);
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
 
-    graph.deliverymans.emplace_back(0, 10);
+    graph.deliverymen.emplace_back(0, 10);
+    graph.deliverymen.emplace_back(1, 10);
+    graph.deliverymen.emplace_back(2, 10);
 
     std::string product = "Livro";
     const Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
 
-    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(exampleOrder);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymen(exampleOrder);
 
-    // Test nearest deliverymans
-    EXPECT_EQ(nearest[0].node, graph.deliverymans[0].node);
+    // Test nearest deliverymen
+    EXPECT_EQ(nearest[0].node, graph.deliverymen[0].node);
 
 
 }
 
-TEST(CityGraphTest, GetNearestDeliverymansMoreThanOne) {
+TEST(CityGraphTest, GetNearestDeliverymenMoreThanOne) {
     CityGraph graph(5);
     graph.addEdge(0, 1, 1.0f);
     graph.addEdge(1, 2, 2.0f);
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
 
-    graph.deliverymans.emplace_back(0, 10);
-    graph.deliverymans.emplace_back(1, 10);
-    graph.deliverymans.emplace_back(2, 10);
+    graph.deliverymen.emplace_back(0, 10);
+    graph.deliverymen.emplace_back(1, 10);
+    graph.deliverymen.emplace_back(2, 10);
 
     std::string product = "Livro";
     const Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
 
-    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(exampleOrder);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymen(exampleOrder);
 
-    // Test nearest deliverymans
-    EXPECT_EQ(nearest[0], graph.deliverymans[0]);
+    // Test nearest deliverymen
+    EXPECT_EQ(nearest[0], graph.deliverymen[0]);
 
 
 }
@@ -194,12 +196,12 @@ TEST(CityGraphTest, GetDeliveryPathLinear) {
     graph.addEdge(3, 4, 4.0f);
 
 
-    graph.deliverymans.emplace_back(0, 100);
+    graph.deliverymen.emplace_back(0, 100);
 
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 0);
 
-    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymen(order);
 
     vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
@@ -215,12 +217,12 @@ TEST(CityGraphTest, GetDeliveryPathNonTrivial) {
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
 
-    graph.deliverymans.emplace_back(0, 100);
+    graph.deliverymen.emplace_back(0, 100);
 
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 1);
 
-    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymen(order);
 
     vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
@@ -236,12 +238,12 @@ TEST(CityGraphTest, GetDeliveryPathGoingBack) {
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
 
-    graph.deliverymans.emplace_back(1, 100);
+    graph.deliverymen.emplace_back(1, 100);
 
     std::string product = "Livro";
     Order order(3, 4, 1.5f, 2.5f, product, 0);
 
-    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymen(order);
 
     vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
@@ -259,12 +261,12 @@ TEST(CityGraphTest, GetDeliveryPathClique) {
     graph.addEdge(1, 3, 1.0f);
     graph.addEdge(2, 3, 1.0f);
 
-    graph.deliverymans.emplace_back(0, 100);
+    graph.deliverymen.emplace_back(0, 100);
 
     std::string product = "Livro";
     Order order(1, 2, 2.0f, 0.0f, product, 3);
 
-    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymen(order);
 
     vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
@@ -286,12 +288,12 @@ TEST(CityGraphTest, GetDeliveryPathHeavyWeights) {
     graph.addEdge(2, 4, 100.0f);
     graph.addEdge(3, 4, 1.0f);
 
-    graph.deliverymans.emplace_back(0, 100);
+    graph.deliverymen.emplace_back(0, 100);
 
     std::string product = "Livro";
     Order order(1, 2, 1.0f, 0.0f, product, 4);
 
-    const vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
+    const vector<Deliveryman> nearest = graph.getNearestDeliverymen(order);
 
     vector<int> path = graph.getDeliveryPath(nearest[0], order);
 
@@ -307,10 +309,10 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionLinear) {
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
 
-    graph.deliverymans.emplace_back(0, 100);
-    graph.deliverymans.emplace_back(1, 100);
-    graph.deliverymans.emplace_back(2, 100);
-    graph.deliverymans.emplace_back(3, 100);
+    graph.deliverymen.emplace_back(0, 100);
+    graph.deliverymen.emplace_back(1, 100);
+    graph.deliverymen.emplace_back(2, 100);
+    graph.deliverymen.emplace_back(3, 100);
 
     unordered_map<string, pair<int,float>> products = {{"Product1", {10, 1.0f}}, {"Livro", {5, 0.5f}}};
 
@@ -335,7 +337,7 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionGoingBack) {
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
 
-    graph.deliverymans.emplace_back(3, 100);
+    graph.deliverymen.emplace_back(3, 100);
 
     unordered_map<string, pair<int,float>> products = {{"Product1", {10, 1.0f}}, {"Livro", {5, 0.5f}}};
 
@@ -360,7 +362,7 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionMoreThanOneCenter) {
     graph.addEdge(2, 3, 3.0f);
     graph.addEdge(3, 4, 4.0f);
 
-    graph.deliverymans.emplace_back(2, 100);
+    graph.deliverymen.emplace_back(2, 100);
 
     unordered_map<string, pair<int,float>> products = {{"Product1", {10, 1.0f}}, {"Livro", {5, 0.5f}}};
 
@@ -387,7 +389,7 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionClique) {
     graph.addEdge(2, 3, 1.0f);
     graph.addEdge(3,4,4.0f);
 
-    graph.deliverymans.emplace_back(2, 100);
+    graph.deliverymen.emplace_back(2, 100);
 
     unordered_map<string, pair<int,float>> products = {{"Product1", {10, 1.0f}}, {"Livro", {5, 0.5f}}};
 
@@ -416,7 +418,7 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionHeavyWeights) {
     graph.addEdge(2, 4, 100.0f);
     graph.addEdge(3, 4, 1.0f);
 
-    graph.deliverymans.emplace_back(0, 100);
+    graph.deliverymen.emplace_back(0, 100);
 
     unordered_map<string, pair<int,float>> products = {{"Product1", {10, 1.0f}}, {"Livro", {5, 0.5f}}};
 
