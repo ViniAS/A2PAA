@@ -23,12 +23,13 @@ struct Edge {
 };
 
 struct Order {
+    //enderecos de entrega ficam em uma aresta. node1 e node2 são os vértices da aresta.
     int node1;
     int node2;
-    //enderecos de entrega ficam em arestas.
+    //distancia do endereço de entrega até o vértice node1 e node2, respectivamente
     float distance1;
     float distance2;
-    string product;
+    string product; //produto a ser entregue
     int store; //vértice da loja
     Order(const int node1, const int node2, const float distance1, const float distance2, string & product, const int store) :
     node1(node1), node2(node2), distance1(distance1), distance2(distance2), product(std::move(product)), store(store) {}

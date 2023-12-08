@@ -354,13 +354,6 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionGoingBack) {
     EXPECT_EQ(get<1>(paths[0]).node, 0);
     vector<int> path = {3, 2, 1, 0, 1, 2, 3};
     EXPECT_EQ(get<2>(paths[0]), path);
-    for(auto & i : paths){
-        cout << get<0>(i).node << " " << get<1>(i).node <<endl;
-        for(auto & j : get<2>(i)){
-            cout << j << " ";
-        }
-        cout << endl;
-    }
     EXPECT_EQ(paths.size(),1);
 }
 
@@ -411,13 +404,6 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionClique) {
     EXPECT_EQ(get<0>(paths[0]).node, 2);
     EXPECT_EQ(get<1>(paths[0]).node, 1);
     vector<int> path = {2, 1, 3};
-    for(auto & i : paths){
-        cout << get<0>(i).node << " " << get<1>(i).node << " ";
-        for(auto & j : get<2>(i)){
-            cout << j << " ";
-        }
-        cout << endl;
-    }
     EXPECT_EQ(get<2>(paths[0]), path);
     EXPECT_EQ(paths.size(),1);
 }
@@ -451,13 +437,6 @@ TEST(CityGraphTest, GetDeliveryPathWithDistributionHeavyWeights) {
     EXPECT_EQ(get<1>(paths[0]).node, 4);
     vector<int> path = {0, 3, 4, 1, 2};
     EXPECT_EQ(get<2>(paths[0]), path);
-    for(auto & i : paths){
-        cout << get<0>(i).node << " " << get<1>(i).node << " ";
-        for(auto & j : get<2>(i)){
-            cout << j << " ";
-        }
-        cout << endl;
-    }
 
     EXPECT_EQ(paths.size(),1);
 }
