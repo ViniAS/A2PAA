@@ -192,16 +192,16 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
     float * distDrivers = new float[numVertices];
     Dijkstra(numVertices-1, distDrivers, cptDrivers);
     //we add all deliverymen to a heap to find the ones closest to the client one
-    priority_queue<pair<float, Deliveryman>,
-        vector<pair<float,Deliveryman>>, greater<>> driversHeap;
-    for(auto deliveryman: deliverymen) {
-        driversHeap.emplace(distDrivers[deliveryman.node], deliveryman);
+    priority_queue<pair<float, Deliveryman*>,
+        vector<pair<float,Deliveryman*>>, greater<>> driversHeap;
+    for(auto &deliveryman: deliverymen) {
+        driversHeap.emplace(distDrivers[deliveryman.node], &deliveryman);
     }
 
     //get paths from deliveryman to distribution center then to client
     vector<tuple<Deliveryman, DistributionCenter, vector<int>>> paths;
-    const float min_dist = distDrivers[driversHeap.top().second.node];
-    paths.emplace_back(driversHeap.top().second,DistributionCenter(),vector<int>{driversHeap.top().second.node});
+    const float min_dist = distDrivers[(driversHeap.top().second)->node];
+    paths.emplace_back(*(driversHeap.top().second),DistributionCenter(),vector<int>{(driversHeap.top().second)->node});
     //we'll get all paths with the same distance to the client
     for (int i = 0; !driversHeap.empty() && driversHeap.top().first == min_dist;) {
         if (cptDrivers[get<2>(paths[i]).back()] == -1) return {};
@@ -221,7 +221,7 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
             driversHeap.pop();
             //if the next deliveryman has the same distance to the client, we add it to the paths
             if (driversHeap.top().first == min_dist)
-                paths.emplace_back(driversHeap.top().second,DistributionCenter(),vector<int>{driversHeap.top().second.node});
+                paths.emplace_back(*(driversHeap.top().second),DistributionCenter(),vector<int>{(driversHeap.top().second)->node});
             else break;
         }
         else
@@ -229,7 +229,7 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
 
     }
     //remove the new node from the graph
-    for(auto const edge: adjLists[numVertices-1]) {
+    for(auto const& edge: adjLists[numVertices-1]) {
         adjLists[edge.node].pop_back();
     }
     numVertices--;
