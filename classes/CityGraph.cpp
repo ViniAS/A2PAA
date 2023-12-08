@@ -172,8 +172,9 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
     adjLists.emplace_back();
     numVertices++;
 
-    unordered_map<int, int> nearestNodes; //stores wich side of the edge has the dearest distance to the client
-    for(auto center: distributionCenters) {
+    auto * nearestNodes = new pair<DistributionCenter*, int>[numVertices]; //nearest distribution center to a node
+
+    for(auto& center: distributionCenters) {
         //we are adding a new node to the graph, that is connected to all distribution centers with the distance
         //from the center to the client so that we can find the cheapest path to the client passing by a center
         if (!center.products.count(order.product)&& center.products[order.product].first > 0) continue;
@@ -184,7 +185,7 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
         //add edge from the new node to the center and from the center to the new node
         adjLists[center.node].emplace_back(distCenterClient, numVertices-1);
         adjLists[numVertices-1].emplace_back(distCenterClient, center.node);
-        nearestNodes[center.node] = nodeClient;
+        nearestNodes[center.node] = make_pair(&center,nodeClient);
     }
 
     int * cptDrivers = new int[numVertices];
@@ -206,15 +207,11 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
         if (cptDrivers[get<2>(paths[i]).back()] == -1) return {};
         //if the parent of the node is the added node, we found the path to the distribution center
         if (cptDrivers[get<2>(paths[i]).back()]==numVertices-1) {
-            int const * cptCenters = nearestNodes[get<2>(paths[i]).back()] == order.node1 ? cptCenters1 : cptCenters2;
-            int const node = nearestNodes[get<2>(paths[i]).back()];
-            //find the distribution center of the node
-            for(auto const & distributionCenter : distributionCenters) {
-                if (distributionCenter.node == get<2>(paths[i]).back()) {
-                    get<1>(paths[i]) = distributionCenter;
-                    break;
-                }
-            }
+            int const * cptCenters = nearestNodes[get<2>(paths[i]).back()].second == order.node1 ? cptCenters1 : cptCenters2;
+            int const node = nearestNodes[get<2>(paths[i]).back()].second;
+            //get the distribution center of the node
+            get<1>(paths[i]) = *(nearestNodes[get<2>(paths[i]).back()].first);
+
             //get the path from the distribution center to the client
             while(get<2>(paths[i]).back() != node) {
                 if (cptCenters[get<2>(paths[i]).back()] == -1) return {};
@@ -232,7 +229,7 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
 
     }
     //remove the new node from the graph
-    for(auto edge: adjLists[numVertices-1]) {
+    for(auto const edge: adjLists[numVertices-1]) {
         adjLists[edge.node].pop_back();
     }
     numVertices--;
@@ -243,6 +240,7 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
     delete[] distCenters1;
     delete[] distCenters2;
     delete[] distDrivers;
+    delete[] nearestNodes;
     return paths;
 }
 
