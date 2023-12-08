@@ -152,8 +152,6 @@ TEST(CityGraphTest, GetNearestDeliverymans) {
     graph.addEdge(3, 4, 4.0f);
 
     graph.deliverymans.emplace_back(0, 10);
-    graph.deliverymans.emplace_back(1, 10);
-    graph.deliverymans.emplace_back(2, 10);
 
     std::string product = "Livro";
     const Order exampleOrder(1, 2, 1.5f, 2.5f, product, 0);
