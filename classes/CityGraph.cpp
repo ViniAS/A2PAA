@@ -168,6 +168,8 @@ pair<DistributionCenter*,int>* CityGraph::getDistanceDistributionCenterToClient(
     //from the center to the client so that we can find the cheapest path to the client passing by a center.
     //It returns an array with the distribution center associated to a node (the node is the index of the array) and the
     //final node of the path to the client (one of nodes of the order)
+    adjLists.emplace_back();
+    numVertices++;
     auto * nearestNodes = new pair<DistributionCenter*, int>[numVertices];
 
     for(auto& center: distributionCenters) {
@@ -187,14 +189,15 @@ pair<DistributionCenter*,int>* CityGraph::getDistanceDistributionCenterToClient(
 }
 
 vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDeliveryPathWithDistribution(const Order & order) {
+    //this function finds the cheapest path from a deliveryman to the client passing by a distribution center
+
+    //find cheapest path from the client to the distribution centers (one for each node of the client edge)
     int * cptCenters1 = new int[numVertices];
     float * distCenters1 = new float[numVertices];
     Dijkstra(order.node1, distCenters1, cptCenters1);
     int * cptCenters2 = new int[numVertices];
     float * distCenters2 = new float[numVertices];
     Dijkstra(order.node2, distCenters2, cptCenters2);
-    adjLists.emplace_back();
-    numVertices++;
 
     const auto *nearestNodes = getDistanceDistributionCenterToClient(order, cptCenters1, cptCenters2,
                                                                                        distCenters1, distCenters2);
