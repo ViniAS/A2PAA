@@ -175,7 +175,7 @@ pair<DistributionCenter*,int>* CityGraph::getDistanceDistributionCenterToClient(
     for(auto& center: distributionCenters) {
         //we are adding a new node to the graph, that is connected to all distribution centers with the distance
         //from the center to the client so that we can find the cheapest path to the client passing by a center
-        if (!center.products.count(order.product)&& center.products[order.product].first > 0) continue;
+        if (!center.products.count(order.product)|| center.products[order.product].first <= 0) continue;
         float const distCenterClient = min(distCenters1[center.node] + order.distance1,
                                            distCenters2[center.node] + order.distance2);
         int const nodeClient = distCenterClient == distCenters1[center.node] + order.distance1 ?
