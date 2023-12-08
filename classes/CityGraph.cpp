@@ -220,7 +220,7 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
             i++;
             driversHeap.pop();
             //if the next deliveryman has the same distance to the client, we add it to the paths
-            if (driversHeap.top().first == min_dist)
+            if (driversHeap.size()&&driversHeap.top().first == min_dist)
                 paths.emplace_back(*(driversHeap.top().second),DistributionCenter(),vector<int>{(driversHeap.top().second)->node});
             else break;
         }
