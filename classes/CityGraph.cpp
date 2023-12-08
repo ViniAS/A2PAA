@@ -106,15 +106,15 @@ vector<Deliveryman> CityGraph::getNearestDeliverymen(const Order & order){
     vector<Deliveryman> nearest;
     float *dist = new float[numVertices];
     int *parents = new int[numVertices];
-    Dijkstra(order.node1, dist, parents);
+    Dijkstra(order.store, dist, parents);
 
     //creates a heap with the deliverymen to find the n nearest
     priority_queue<pair<float, Deliveryman*>,
         vector<pair<float,Deliveryman*>>, greater<>> heap;
     for (auto &deliveryman: deliverymen) {
-        heap.emplace(dist[order.store], &deliveryman);
+        heap.emplace(dist[deliveryman.node], &deliveryman);
     }
-    float const min_dist = dist[order.store];
+    float const min_dist = heap.top().first;
     for (int i = 0;!heap.empty() && heap.top().first==min_dist ; ++i) {
         nearest.emplace_back(*heap.top().second);
         heap.pop();
