@@ -26,9 +26,12 @@ Por fim, execute o seguinte comando para compilar o projeto:
 make
 ```
 
-Se a compilação for bem sucedida, você poderá executar o projeto com o seguinte comando:
+Se a compilação for bem sucedida, dois executáveis serão gerados. A2PAA gera os arquivos csvs com tempos de execução e A2PAA_test para testar os algoritmos. Para rodar os arquivos basta utilizar os seguintes comandos
 
 ```bash
 ./A2PAA
+```
+```bash
+./A2PAA_test
 ```
 
