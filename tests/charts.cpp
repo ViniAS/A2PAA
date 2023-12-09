@@ -15,10 +15,12 @@ CityGraph createCityGraph(int);
 void populateCityGraph(CityGraph&);
 void operation1();
 void operation2();
+void operation3();
 
 int chartMaker() {
     operation1();
     operation2();
+    operation3();
     return 0;
 }
 
@@ -84,7 +86,7 @@ void populateCityGraph(CityGraph& graph) {
     // Add deliverymen
     for (int i = 0; i < numDeliverymen; i++) {
         int location = int(distrib(gen) * numVertices) % numVertices;
-        graph.deliverymans.emplace_back(location, 10);
+        graph.deliverymen.emplace_back(location, 10);
     }
 
     // Add distribution centers
@@ -98,7 +100,7 @@ void populateCityGraph(CityGraph& graph) {
 void operation1() {
     vector<vector<double>> operation1Matrix;
 
-    for (int i = 10; i <= 1000000; i+=1000) {
+    for (int i = 10; i <= 100000; i+=1000) {
         CityGraph graph = createCityGraph(i);
         populateCityGraph(graph);
 
@@ -109,7 +111,7 @@ void operation1() {
         // Get the start time
         auto start = std::chrono::high_resolution_clock::now();
 
-        vector<Deliveryman> nearest = graph.getNearestDeliverymans(exampleOrder);
+        vector<Deliveryman> nearest = graph.getNearestDeliverymen(exampleOrder);
 
         // Get the end time
         auto end = std::chrono::high_resolution_clock::now();
@@ -128,14 +130,14 @@ void operation1() {
 void operation2() {
     vector<vector<double>> operation1Matrix;
 
-    for (int i = 10; i <= 1000000; i+=1000) {
+    for (int i = 10; i <= 100000; i+=1000) {
         CityGraph graph = createCityGraph(i);
         populateCityGraph(graph);
 
         std::string product = "Livro";
 
         const Order order(0, 1, 0.0f, 1.0f, product, 0);
-        vector<Deliveryman> nearest = graph.getNearestDeliverymans(order);
+        vector<Deliveryman> nearest = graph.getNearestDeliverymen(order);
 
         // Get the start time
         auto start = std::chrono::high_resolution_clock::now();
@@ -154,4 +156,35 @@ void operation2() {
 
     exportToCSV(operation1Matrix, "../times/operation2.csv");
     cout << "Operation 2 done" << endl;
+}
+
+void operation3() {
+    vector<vector<double>> operation1Matrix;
+
+    for (int i = 10; i <= 100000; i+=1000) {
+        CityGraph graph = createCityGraph(i);
+        populateCityGraph(graph);
+
+        std::string product = "Livro";
+
+        const Order order(0, 1, 0.0f, 1.0f, product, 0);
+        vector<Deliveryman> nearest = graph.getNearestDeliverymen(order);
+
+        // Get the start time
+        auto start = std::chrono::high_resolution_clock::now();
+
+        auto paths = graph.getDeliveryPathWithDistribution(order);
+
+        // Get the end time
+        auto end = std::chrono::high_resolution_clock::now();
+        // Calculate and print the duration
+        std::chrono::duration<double> duration = end - start;
+
+        operation1Matrix.push_back({static_cast<double>(i), duration.count() * 1000});
+
+        cout << i << endl;
+    }
+
+    exportToCSV(operation1Matrix, "../times/operation3.csv");
+    cout << "Operation 3 done" << endl;
 }
