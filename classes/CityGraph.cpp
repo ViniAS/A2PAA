@@ -224,7 +224,7 @@ vector<tuple<Deliveryman, DistributionCenter, vector<int>>> CityGraph::getDelive
         if (cptDrivers[get<2>(paths[i]).back()]==numVertices-1) {
             //we are now going to find the path from the distribution center to the client
 
-            //get the distribution center of the node
+            //get the right cpt and the node associated to it
             int const * cptCenters = nearestNodes[get<2>(paths[i]).back()].second == order.node1 ? cptCenters1 : cptCenters2;
             int const node = nearestNodes[get<2>(paths[i]).back()].second;
             //get the distribution center of the node
